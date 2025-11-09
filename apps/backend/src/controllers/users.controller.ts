@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { UserModel } from "../models/user";
 import HttpStatus from "http-status";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { RedisServices } from "../services/redis.service";
 
 export namespace UsersController {
     export const createUser = async (req: Request, res: Response) => {
@@ -21,6 +22,8 @@ export namespace UsersController {
     export const getUsers = async (req: Request, res: Response) => {
         try{
             const users = await UserModel.getUsers();
+            const cacheKey = req.originalUrl;
+            RedisServices.setCache(cacheKey, JSON.stringify(users))
             res.status(HttpStatus.FOUND).json(JSON.stringify(users))
         }catch(err){
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });

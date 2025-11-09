@@ -4,9 +4,10 @@ import HttpStatus from "http-status";
 
 export namespace CacheMiddleware {
     export const cacheMiddleWare = async (req: Request, res: Response, next: NextFunction) => {
-        const key = req.originalUrl.slice(1); // e.g. Alarms
+        const key = req.originalUrl; // e.g. /alarms
         const cached = await RedisServices.getCache(key);
-        console.log("Key:", key, "Cached:", cached);
+        console.log("Key:", key, "Cached:", cached);     
+           
         if(cached) {
             res.status(HttpStatus.OK).json(cached);
         }else{

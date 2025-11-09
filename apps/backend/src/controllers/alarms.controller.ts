@@ -9,9 +9,11 @@ export namespace AlarmsController {
         try{
             // fecth all alarms from db or redis storage
             const alarms = await AlarmModel.getAlarms();
-            res.status(HttpStatus.OK).json(JSON.stringify(alarms));
             // cache the alarms
-            RedisServices.setCache("alarms", JSON.stringify(alarms));
+            const cacheKey = req.originalUrl;
+            RedisServices.setCache(cacheKey, JSON.stringify(alarms));
+
+            res.status(HttpStatus.OK).json(JSON.stringify(alarms));
         }catch(err){
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
         }
