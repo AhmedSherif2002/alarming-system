@@ -1,10 +1,11 @@
 import { Job, Worker } from "bullmq";
 import connection from "../config/queues.config";
+import { EmailingService } from "../services/emailing.service";
 
 export namespace EmailingWorker{
     const emailingWorkerProcessor = async (job: Job) => {
         console.log("Job received:", job.data);
-        
+        EmailingService.sendEmails(["abc"]);
     }
     export const init = async () => {
         const emailingWorker = new Worker('emailing-queue', emailingWorkerProcessor, { connection: connection });
