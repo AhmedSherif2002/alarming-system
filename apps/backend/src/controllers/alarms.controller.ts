@@ -3,6 +3,7 @@ import { AlarmEventService } from "../services/event.service";
 import { AlarmModel } from "../models/Alarm";
 import HttpStatus from "http-status";
 import { RedisServices } from "../services/redis.service";
+import { EmailingQueue } from "../queues/emailing-queue";
 
 export namespace AlarmsController {
     export const getAlarms = async (req: Request, res: Response): Promise<void> => {
@@ -22,12 +23,15 @@ export namespace AlarmsController {
     export const pushAlarm = async (req: Request, res: Response): Promise<void> => {
         const { sensorName } = req.body;
         try{
+            console.log("sensorName:", sensorName)
             // store the alarms to db
             const alarm = await AlarmModel.createAlarm(sensorName)
             // broadcast event to all clients
             AlarmEventService.broadcastEvent(alarm);
             // remove cached alarms
             RedisServices.deleteCache("alarms");
+            // Trigger emailing service to send mails to all users
+            EmailingQueue.addJob(alarm);
             res.status(HttpStatus.CREATED).json({ message: "Alarm received succesfully" });
         }catch(err){
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
