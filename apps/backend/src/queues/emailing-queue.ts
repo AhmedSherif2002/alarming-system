@@ -5,8 +5,13 @@ import { Alarm } from "@prisma/client";
 export namespace EmailingQueue {
     const emailingQueue = new Queue('emailing-queue', { connection: connection });
 
-    export const addJob = async (alarm: Alarm) => {
-        console.log("Sending job", alarm.id);
-        await emailingQueue.add(`Alarm-${alarm.id}`, alarm);
+    export const addJob = async (usersMails: string[], alarm: Alarm) => {
+        const alarmJob = {
+            usersMails,
+            alarm: JSON.stringify(alarm)
+        }
+        
+        console.log("Sending job", alarmJob);
+        await emailingQueue.add(`Alarm-${alarm.id}`, alarmJob);
     }   
 }

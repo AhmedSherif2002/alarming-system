@@ -5,7 +5,9 @@ import { EmailingService } from "../services/emailing.service";
 export namespace EmailingWorker{
     const emailingWorkerProcessor = async (job: Job) => {
         console.log("Job received:", job.data);
-        EmailingService.sendEmails(["abc"]);
+        const mails = job.data.usersMails;
+        const alarm = job.data.alarm
+        EmailingService.sendEmails(mails, alarm);
     }
     export const init = async () => {
         const emailingWorker = new Worker('emailing-queue', emailingWorkerProcessor, { connection: connection });
